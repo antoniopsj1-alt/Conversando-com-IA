@@ -1,1072 +1,138 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="keywords" content="Pedido IA, Antônio Pereira de Souza Junior, conversar, puter">
-  <meta name="author" content="Antônio Pereira de Souza Junior">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FazAí IA</title>
-  <style>
+    <meta charset="UTF-8">
 
-        /* IMPORTANTE: Remove as margens padrão do navegador */
-        body {
-            margin: 0;
-            padding: 0;
-        }
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+          <meta name="keywords" content="Antonio Pereira de Souza Junior, Aplicativo Conversar IA, Pedido Puter, resposta IA">
+            <meta name="author" content="Antônio Pereira de Souza Junior">
 
-    :root {
-      --bg-1: #eaf4ff;
-      --bg-2: #dfeeff;
-      --primary: #0d5bd7;
-      --primary-strong: #083d9b;
-      --secondary: #52a7ff;
-      --dark: #12213d;
-      --panel: rgba(255, 255, 255, 0.72);
-      --panel-strong: #ffffff;
-      --muted: #4a628d;
-      --line: rgba(13, 91, 215, 0.12);
-      --success: #22c55e;
-      --success-2: #16a34a;
-      --shadow: 0 18px 40px rgba(18, 54, 125, 0.18);
-    }
+    <title>FazAí IA</title>
 
-    * {
-      box-sizing: border-box;
-    }
+    <link rel="stylesheet"
+          href="styles.css">
 
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
-      color: var(--dark);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
+    <!-- PUTER -->
+    <script src="https://js.puter.com/v2/"></script>
 
-    .card {
-      width: 100%;
-      max-width: 780px;
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 22px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(6px);
-    }
+    <!-- JSPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: clamp(1.7rem, 2vw, 2.2rem);
-      color: var(--primary-strong);
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(13, 91, 215, 0.08);
-      color: var(--primary-strong);
-      font-weight: 700;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 140px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 16px 18px;
-      font-size: 16px;
-      resize: vertical;
-      box-sizing: border-box;
-      margin-top: 10px;
-      color: var(--dark);
-      outline: none;
-      box-shadow: inset 0 1px 3px rgba(12, 43, 96, 0.04);
-    }
-
-    textarea:focus {
-      border-color: rgba(13, 91, 215, 0.35);
-      box-shadow: 0 0 0 4px rgba(82, 167, 255, 0.12);
-    }
-
-    body.waiting,
-    body.waiting * {
-      cursor: wait !important;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 12px;
-      margin: 18px 0 14px;
-      flex-wrap: wrap;
-    }
-
-    .tab-button {
-      padding: 10px 18px;
-      border: 1px solid rgba(13, 91, 215, 0.14);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.38);
-      color: var(--primary-strong);
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .tab-button.active {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      box-shadow: 0 12px 18px rgba(13, 91, 215, 0.18);
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .pedido-box {
-      background: rgba(13, 91, 215, 0.05);
-      border: 1px solid rgba(13, 91, 215, 0.12);
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 16px;
-    }
-
-    .pedido-box .titulo-box {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--primary-strong);
-    }
-
-    button {
-      margin-top: 0;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 12px 20px rgba(13, 91, 215, 0.18);
-      border: 1px solid rgba(13, 91, 215, 0.18);
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 22px rgba(13, 91, 215, 0.22);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      box-shadow: 0 12px 20px rgba(13, 91, 215, 0.18);
-      border: 1px solid rgba(13, 91, 215, 0.18);
-    }
-
-    .btn-success {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      box-shadow: 0 12px 20px rgba(13, 91, 215, 0.18);
-      border: 1px solid rgba(13, 91, 215, 0.18);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      box-shadow: 0 12px 20px rgba(13, 91, 215, 0.18);
-      border: 1px solid rgba(13, 91, 215, 0.18);
-    }
-
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      color: var(--primary-strong);
-      font-weight: 600;
-      min-height: 22px;
-      line-height: 1.4;
-    }
-
-    .status-indicator {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #94a3b8;
-      box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.4);
-      transition: all 0.2s ease;
-    }
-
-    .status.processing .status-indicator {
-      background: #f59e0b;
-      box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.12);
-      animation: pulse-status 1s infinite;
-    }
-
-    .status.ready .status-indicator {
-      background: var(--success);
-      box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.12);
-    }
-
-    @keyframes pulse-status {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.12);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    .resposta-box {
-      margin-top: 20px;
-      background: rgba(15, 23, 42, 0.94);
-      color: #eaf4ff;
-      padding: 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .resposta-box h3 {
-      margin: 0 0 12px;
-      font-size: 1rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #bcd8ff;
-    }
-
-    .result-preview {
-      width: 100%;
-      min-height: 120px;
-      padding: 18px 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.04);
-      color: #eaf4ff;
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-      white-space: normal;
-    }
-
-    .result-preview p,
-    .result-preview ul,
-    .result-preview ol {
-      margin: 0 0 12px;
-    }
-
-    .result-preview ul,
-    .result-preview ol {
-      padding-left: 20px;
-    }
-
-    .result-preview strong {
-      color: #ffffff;
-    }
-
-    .result-preview code {
-      background: rgba(255,255,255,0.08);
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-family: Consolas, monospace;
-    }
-
-    .image-preview {
-      width: 100%;
-      min-height: 160px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.04);
-      color: #eaf4ff;
-      overflow: hidden;
-    }
-
-    .generated-image {
-      width: 100%;
-      max-width: 100%;
-      max-height: 420px;
-      object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-      background: rgba(255,255,255,0.08);
-    }
-
-    .resposta-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    .image-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-  </style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="header">
-      <h2>FazAí IA </h2>
-      <span class="badge">Puter</span>
+
+    <div class="card">
+
+        <div class="header">
+            <h2>FazAí IA</h2>
+            <span class="badge">Puter</span>
+        </div>
+
+        <textarea
+            id="prompt"
+            placeholder="Digite sua pergunta aqui..."></textarea>
+
+        <div class="pedido-box">
+
+            <span class="titulo-box">
+                Pedido
+            </span>
+
+            <div class="controls">
+
+                <button id="btnGravar" type="button">
+                    🎙 Gravar Áudio
+                </button>
+
+                <button id="btnParar" type="button">
+                    ■ Parar
+                </button>
+
+                <button id="btnLerTexto" type="button">
+                    🔊 Ouvir Pedido
+                </button>
+
+                <button id="btnEnviar" type="button">
+                    Enviar
+                </button>
+
+                <button id="btnLimpar" type="button">
+                    🧹 Limpar
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="status" class="status">
+
+            <span class="status-indicator"></span>
+
+            <span class="status-text">
+                Aguardando...
+            </span>
+
+        </div>
+
+        <div class="resposta-box">
+
+            <h3>Resposta</h3>
+
+            <div id="resultado"
+                 class="result-preview"
+                 aria-live="polite">
+
+                Sua resposta aparecerá aqui.
+
+            </div>
+
+            <div class="resposta-actions">
+
+                <button id="btnLerResposta" type="button">
+                    🔊 Ouvir Resposta
+                </button>
+
+                <button id="btnPausarResposta" type="button">
+                    ⏸ Pausar
+                </button>
+
+                <button id="btnContinuarResposta" type="button">
+                    ▶ Continuar
+                </button>
+
+                <button id="btnPararResposta" type="button">
+                    ■ Parar Leitura
+                </button>
+
+                <button id="btnCopiarResposta" type="button">
+   		 📋 Copiar Ctrl+C
+		</button>
+
+            </div>
+
+        </div>
+
+        <footer>
+
+                  <p style="text-align: center;">
+                  <a href="https://antoniopsj1-alt.github.io/Portfolio-AntonioJunior/" target="_blank" style="text-decoration: none; color: inherit;">
+                   &copy; 2026 Antônio Pereira de Souza Junior.
+                  </a>
+                  </p>
+			        <p style="text-align: center;">Todos os direitos reservados.</p>
+			        <address style="text-align: center; color: white; text-weight: bold;">
+			        Contato: <a href="mailto:antoniopsj1@gmail.com">antoniopsj1@gmail.com</a>
+			        </address>
+
+        </footer>
+
     </div>
 
-    <div class="tabs" role="tablist" aria-label="Modos da IA">
-      <button class="tab-button active" type="button" data-tab="chat" role="tab" aria-selected="true">💬 Conversa com a IA</button>
-      <button class="tab-button" type="button" data-tab="image" role="tab" aria-selected="false">🖼 Gerar imagem</button>
-    </div>
+    <!-- SEU JAVASCRIPT -->
+    <script src="scripts.js"></script>
 
-    <div id="tab-chat" class="tab-panel active" role="tabpanel">
-      <textarea id="prompt" placeholder="Digite sua pergunta aqui..."></textarea>
-
-      <div class="pedido-box">
-        <span class="titulo-box">Pedido</span>
-        <div class="controls">
-          <button id="btnGravar">🎙 Gravar Áudio</button>
-          <button id="btnParar" class="btn-secondary">■ Parar Gravação</button>
-          <button id="btnLerTexto" class="btn-secondary">🔊 Ouvir Pedido</button>
-          <button id="btnEnviar">Enviar</button>
-          <button id="btnLimpar">🧹Limpar</button>
-        </div>
-      </div>
-
-      <div id="status" class="status">
-        <span class="status-indicator"></span>
-        <span class="status-text">Aguardando...</span>
-      </div>
-
-      <div class="resposta-box">
-        <h3>Resposta</h3>
-        <div id="resultado" class="result-preview" aria-live="polite">
-          <p>Sua resposta aparecerá aqui.</p>
-        </div>
-
-        <div class="resposta-actions">
-          <button id="btnLerResposta" class="btn-success">🔊 Ouvir Resposta</button>
-          <button id="btnPausarResposta" class="btn-secondary">⏸ Pausar Áudio</button>
-          <button id="btnContinuarResposta" class="btn-secondary">▶ Continuar Áudio</button>
-          <button id="btnPararResposta" class="btn-danger">■ Parar Áudio</button>
-          <button id="btnSalvarResposta" class="btn-secondary">💾 Salvar em PDF</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="tab-image" class="tab-panel" role="tabpanel">
-      <textarea id="imagePrompt" placeholder="Descreva a imagem que você quer gerar..."></textarea>
-
-      <div class="pedido-box">
-        <span class="titulo-box">Prompt da imagem</span>
-        <div class="controls">
-          <button id="btnGerarImagem">🖼 Gerar imagem</button>
-          <button id="btnSalvarImagem" class="btn-secondary hidden">💾 Salvar imagem</button>
-        </div>
-      </div>
-
-      <div id="statusImage" class="status" style="margin-top: 14px;">
-        <span class="status-indicator"></span>
-        <span class="status-text">Aguardando...</span>
-      </div>
-
-      <div class="resposta-box">
-        <h3>Imagem gerada</h3>
-        <div id="imagemResultado" class="image-preview" aria-live="polite">
-          <p>Sua imagem aparecerá aqui.</p>
-        </div>
-
-        <div class="image-actions">
-          <button id="btnBaixarImagem" class="btn-secondary hidden">💾 Baixar imagem</button>
-        </div>
-      </div>
-    </div>
-
-        <p style="text-align: center;">&copy; 2026 Antônio Pereira de Souza Junior.</p>
-        <p style="text-align: center;">Todos os direitos reservados.</p>
-  </div>
-
-  <script src="https://js.puter.com/v2/"></script>
-
-  <script>
-    const btnEnviar = document.getElementById("btnEnviar");
-    const btnGravar = document.getElementById("btnGravar");
-    const btnParar = document.getElementById("btnParar");
-    const btnLerTexto = document.getElementById("btnLerTexto");
-    const btnLerResposta = document.getElementById("btnLerResposta");
-    const btnPausarResposta = document.getElementById("btnPausarResposta");
-    const btnContinuarResposta = document.getElementById("btnContinuarResposta");
-    const btnPararResposta = document.getElementById("btnPararResposta");
-    const btnSalvarResposta = document.getElementById("btnSalvarResposta");
-    const promptInput = document.getElementById("prompt");
-    const resultado = document.getElementById("resultado");
-    const status = document.getElementById("status");
-    const statusText = document.querySelector(".status-text");
-    const imagePrompt = document.getElementById("imagePrompt");
-    const btnGerarImagem = document.getElementById("btnGerarImagem");
-    const btnSalvarImagem = document.getElementById("btnSalvarImagem");
-    const btnBaixarImagem = document.getElementById("btnBaixarImagem");
-    const imagemResultado = document.getElementById("imagemResultado");
-    const tabButtons = document.querySelectorAll(".tab-button");
-    const tabPanels = document.querySelectorAll(".tab-panel");
-    let imagemGeradaUrl = "";
-
-    const setStatus = (tipo, mensagem) => {
-      if (!status || !statusText) return;
-      status.classList.remove("processing", "ready");
-      if (tipo === "processing") {
-        status.classList.add("processing");
-      }
-      if (tipo === "ready") {
-        status.classList.add("ready");
-      }
-      statusText.textContent = mensagem;
-    };
-
-    const isFileProtocol = () => window.location.protocol === "file:";
-
-    const bloquearSeArquivo = () => {
-      if (!isFileProtocol()) return false;
-      setStatus("", "Use um servidor local (http://localhost) para usar a IA.");
-      resultado.innerHTML = "<p>Este app precisa abrir em um servidor local, não em arquivo local.</p>";
-      imagemResultado.innerHTML = "<p>Abra esta página com um servidor local para gerar imagens.</p>";
-      btnEnviar.disabled = true;
-      btnGerarImagem.disabled = true;
-      return true;
-    };
-
-    const abrirAba = (nome) => {
-      tabButtons.forEach((botao) => {
-        const ativo = botao.dataset.tab === nome;
-        botao.classList.toggle("active", ativo);
-        botao.setAttribute("aria-selected", String(ativo));
-      });
-
-      tabPanels.forEach((painel) => {
-        painel.classList.toggle("active", painel.id === `tab-${nome}`);
-      });
-    };
-
-    tabButtons.forEach((botao) => {
-      botao.addEventListener("click", () => abrirAba(botao.dataset.tab));
-    });
-
-    if (bloquearSeArquivo()) {
-      console.warn("Puter.js requer HTTP/HTTPS. O arquivo está sendo aberto como file://");
-    }
-
-    // Verificar disponibilidade do Puter
-    setTimeout(() => {
-      if (typeof puter === "undefined") {
-        console.error("Puter não está definido após 2 segundos!");
-        resultado.innerHTML = "<p>Erro: Puter não foi carregado corretamente.</p>";
-      } else {
-        console.log("Puter carregado com sucesso:", {
-          ai: typeof puter.ai,
-          chat: typeof puter.ai?.chat,
-          txt2img: typeof puter.ai?.txt2img
-        });
-      }
-    }, 2000);
-
-    const formatResultadoResposta = (texto) => {
-      const raw = String(texto ?? "").trim();
-
-      if (!raw) {
-        return "<p>Resposta vazia.</p>";
-      }
-
-      const semMarkdown = raw
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/^#{1,6}\s*/gm, "")
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .replace(/__(.*?)__/g, "$1")
-        .replace(/\*(.*?)\*/g, "$1")
-        .replace(/_(.*?)_/g, "$1")
-        .replace(/^\s*[-*]\s+/gm, "• ")
-        .replace(/^\s*\d+\.\s+/gm, "")
-        .replace(/\[(.*?)\]\((.*?)\)/g, "$1");
-
-      const blocks = semMarkdown
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .split(/\n\s*\n+/)
-        .map((block) => block.trim())
-        .filter(Boolean);
-
-      return blocks.map((block) => {
-        const lines = block
-          .split(/\n/)
-          .map((line) => line.trim())
-          .filter(Boolean);
-
-        if (lines.every((line) => line.startsWith("• "))) {
-          const items = lines.map((line) => `<li>${line.replace(/^•\s*/, "")}</li>`).join("");
-          return `<ul>${items}</ul>`;
-        }
-
-        return `<p>${lines.join("<br>")}</p>`;
-      }).join("");
-    };
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let respostaAtual = "";
-    let utteranceResposta = null;
-
-    if (SpeechRecognition) {
-      recognition = new SpeechRecognition();
-      recognition.lang = "pt-BR";
-      recognition.continuous = true;
-      recognition.interimResults = false;
-
-      recognition.onresult = (event) => {
-        let transcricao = "";
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcricao += event.results[i][0].transcript;
-        }
-
-        const textoAtual = promptInput.value.trim();
-        promptInput.value = textoAtual ? textoAtual + " " + transcricao : transcricao;
-        status.textContent = "Áudio convertido para texto.";
-      };
-
-      recognition.onerror = () => {
-        status.textContent = "Não foi possível ouvir o áudio. Tente novamente.";
-      };
-
-      recognition.onend = () => {
-        if (status.textContent.includes("Gravando")) {
-          status.textContent = "Gravação encerrada e texto atualizado.";
-        }
-      };
-    } else {
-      status.textContent = "Reconhecimento de voz não é suportado neste navegador.";
-    }
-
-    btnGravar.addEventListener("click", () => {
-      if (!recognition) {
-        status.textContent = "Seu navegador não suporta gravação por voz.";
-        return;
-      }
-
-      try {
-        recognition.start();
-        status.textContent = "Gravando áudio... Fale agora.";
-      } catch (error) {
-        status.textContent = "Já está gravando. Clique em parar primeiro.";
-      }
-    });
-
-    btnParar.addEventListener("click", () => {
-      if (!recognition) return;
-
-      recognition.stop();
-      status.textContent = "Parando gravação...";
-    });
-
-    btnLerTexto.addEventListener("click", () => {
-      const texto = promptInput.value.trim();
-
-      if (!texto) {
-        status.textContent = "Digite ou grave algum texto antes de ler.";
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = "pt-BR";
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utterance);
-      status.textContent = "Lendo o texto...";
-    });
-
-    btnLerResposta.addEventListener("click", () => {
-      const texto = (resultado.innerText || resultado.textContent || "").trim();
-
-      if (!texto || texto === "Sua resposta aparecerá aqui." || texto === "Processando...") {
-        status.textContent = "Ainda não há resposta para ser lida.";
-        return;
-      }
-
-      utteranceResposta = new SpeechSynthesisUtterance(texto);
-      utteranceResposta.lang = "pt-BR";
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utteranceResposta);
-      status.textContent = "Lendo a resposta...";
-    });
-
-    btnPausarResposta.addEventListener("click", () => {
-      if (speechSynthesis.speaking && !speechSynthesis.paused) {
-        speechSynthesis.pause();
-        status.textContent = "Áudio pausado.";
-      } else {
-        status.textContent = "Nenhuma leitura em execução para pausar.";
-      }
-    });
-
-    btnContinuarResposta.addEventListener("click", () => {
-      const texto = (resultado.innerText || resultado.textContent || "").trim();
-
-      if (!texto || texto === "Sua resposta aparecerá aqui." || texto === "Processando...") {
-        status.textContent = "Ainda não há resposta para continuar a leitura.";
-        return;
-      }
-
-      if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-        status.textContent = "Leitura retomada.";
-      } else {
-        utteranceResposta = new SpeechSynthesisUtterance(texto);
-        utteranceResposta.lang = "pt-BR";
-        speechSynthesis.cancel();
-        speechSynthesis.speak(utteranceResposta);
-        status.textContent = "Lendo a resposta...";
-      }
-    });
-
-    btnPararResposta.addEventListener("click", () => {
-      speechSynthesis.cancel();
-      status.textContent = "Leitura da resposta interrompida.";
-    });
-
-    btnSalvarResposta.addEventListener("click", () => {
-      const texto = (resultado.innerText || resultado.textContent || "").trim();
-
-      if (!texto || texto === "Sua resposta aparecerá aqui." || texto === "Processando...") {
-        status.textContent = "Ainda não há resposta para salvar.";
-        return;
-      }
-
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const linhas = doc.splitTextToSize(texto, 180);
-
-        doc.text(linhas, 14, 20);
-        doc.save("resposta-puter.pdf");
-        status.textContent = "Resposta baixada em PDF.";
-      } catch (error) {
-        console.error(error);
-        status.textContent = "Não foi possível gerar o PDF.";
-      }
-    });
-
-    btnLimpar.addEventListener("click", () => {
-      promptInput.value = "";
-      resultado.innerHTML = "<p>Sua resposta aparecerá aqui.</p>";
-      status.textContent = "Campo de pergunta limpo.";
-    });
-
-    btnEnviar.addEventListener("click", async () => {
-      if (bloquearSeArquivo()) return;
-
-      const texto = promptInput.value.trim();
-
-      if (!texto) {
-        setStatus("", "Digite alguma pergunta primeiro.");
-        return;
-      }
-
-      document.body.classList.add("waiting");
-      setStatus("processing", "Enviando pedido... A IA está pensando.");
-      resultado.innerHTML = "<p>Processando...</p>";
-
-      try {
-        const resposta = await puter.ai.chat(texto);
-
-        respostaAtual = resposta;
-        document.body.classList.remove("waiting");
-        setStatus("ready", "Resposta recebida!");
-        resultado.innerHTML = formatResultadoResposta(resposta);
-      } catch (err) {
-        document.body.classList.remove("waiting");
-        setStatus("", "Erro ao usar o Puter.");
-        resultado.innerHTML = `<p>${String(err)}</p>`;
-        console.error(err);
-      }
-    });
-
-    // Gerador visual inteligente baseado no prompt
-    const gerarImagemLocal = (prompt) => {
-      return new Promise((resolve) => {
-        const canvas = document.createElement("canvas");
-        canvas.width = 640;
-        canvas.height = 640;
-        const ctx = canvas.getContext("2d");
-
-        // Análise simples do prompt
-        const promptLower = prompt.toLowerCase();
-        const temPor = promptLower.includes("por") || promptLower.includes("sol") || promptLower.includes("pôr");
-        const temCeu = promptLower.includes("céu") || promptLower.includes("cu");
-        const temMontanha = promptLower.includes("montanha") || promptLower.includes("serra") || promptLower.includes("pico");
-        const temAgua = promptLower.includes("água") || promptLower.includes("mar") || promptLower.includes("rio") || promptLower.includes("lago");
-        const temArvore = promptLower.includes("árvore") || promptLower.includes("arvore") || promptLower.includes("floresta") || promptLower.includes("floresta");
-        const temAnimal = promptLower.includes("gato") || promptLower.includes("cachorro") || promptLower.includes("pássaro") || promptLower.includes("passaro") || promptLower.includes("animal");
-        const temPessoa = promptLower.includes("pessoa") || promptLower.includes("homem") || promptLower.includes("mulher") || promptLower.includes("menina") || promptLower.includes("menino");
-        const temFlor = promptLower.includes("flor") || promptLower.includes("rosa") || promptLower.includes("girassol");
-        const temNoite = promptLower.includes("noite") || promptLower.includes("lua") || promptLower.includes("escuro") || promptLower.includes("estrela");
-
-        // Fundo céu/horizonte
-        if (temPor) {
-          // Pôr do sol
-          const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-          gradient.addColorStop(0, "#FF6B35");
-          gradient.addColorStop(0.3, "#F7931E");
-          gradient.addColorStop(0.6, "#FFD700");
-          gradient.addColorStop(1, "#FF6B9D");
-          ctx.fillStyle = gradient;
-        } else if (temNoite) {
-          // Noite com estrelas
-          const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-          gradient.addColorStop(0, "#0a1128");
-          gradient.addColorStop(1, "#1a2a4a");
-          ctx.fillStyle = gradient;
-        } else if (temCeu) {
-          // Céu azul
-          const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-          gradient.addColorStop(0, "#87CEEB");
-          gradient.addColorStop(1, "#E0F6FF");
-          ctx.fillStyle = gradient;
-        } else {
-          // Padrão genérico
-          const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-          gradient.addColorStop(0, "#87CEEB");
-          gradient.addColorStop(0.5, "#E0FFFF");
-          gradient.addColorStop(1, "#90EE90");
-          ctx.fillStyle = gradient;
-        }
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Desenhar elementos conforme o prompt
-        if (temNoite && !temMontanha) {
-          // Lua
-          ctx.fillStyle = "#FFFACD";
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.2, canvas.height * 0.2, 60, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Montanhas
-        if (temMontanha) {
-          ctx.fillStyle = "#8B7355";
-          ctx.beginPath();
-          ctx.moveTo(0, canvas.height * 0.6);
-          ctx.lineTo(canvas.width * 0.3, canvas.height * 0.2);
-          ctx.lineTo(canvas.width * 0.6, canvas.height * 0.5);
-          ctx.lineTo(canvas.width, canvas.height * 0.3);
-          ctx.lineTo(canvas.width, canvas.height);
-          ctx.lineTo(0, canvas.height);
-          ctx.fill();
-
-          // Neves nas montanhas
-          ctx.fillStyle = "#FFFFFF";
-          ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.3, canvas.height * 0.2);
-          ctx.lineTo(canvas.width * 0.35, canvas.height * 0.35);
-          ctx.lineTo(canvas.width * 0.25, canvas.height * 0.35);
-          ctx.fill();
-        }
-
-        // Água/Mar
-        if (temAgua) {
-          ctx.fillStyle = "#1E90FF";
-          ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.35);
-          
-          // Ondas
-          ctx.strokeStyle = "rgba(255,255,255,0.3)";
-          ctx.lineWidth = 2;
-          for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height * 0.65 + i * 15);
-            for (let x = 0; x < canvas.width; x += 20) {
-              ctx.lineTo(x, canvas.height * 0.65 + i * 15 + Math.sin(x / 30) * 5);
-            }
-            ctx.stroke();
-          }
-        }
-
-        // Árvores
-        if (temArvore) {
-          // Tronco
-          ctx.fillStyle = "#8B4513";
-          ctx.fillRect(canvas.width * 0.15, canvas.height * 0.45, 30, 100);
-          // Folhagem
-          ctx.fillStyle = "#228B22";
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.3, canvas.height * 0.4, 60, 0, Math.PI * 2);
-          ctx.fill();
-          
-          ctx.fillStyle = "#32CD32";
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.35, canvas.height * 0.35, 50, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Flores
-        if (temFlor) {
-          // Pétalas
-          ctx.fillStyle = "#FF69B4";
-          for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.arc(
-              canvas.width * 0.5 + Math.cos((i / 5) * Math.PI * 2) * 30,
-              canvas.height * 0.5 + Math.sin((i / 5) * Math.PI * 2) * 30,
-              20, 0, Math.PI * 2
-            );
-            ctx.fill();
-          }
-          // Centro
-          ctx.fillStyle = "#FFD700";
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.5, canvas.height * 0.5, 15, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Gato simples
-        if (promptLower.includes("gato")) {
-          ctx.fillStyle = "#FF8C00";
-          // Corpo
-          ctx.beginPath();
-          ctx.ellipse(canvas.width * 0.5, canvas.height * 0.5, 50, 60, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // Cabeça
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.5, canvas.height * 0.35, 45, 0, Math.PI * 2);
-          ctx.fill();
-          // Orelhas
-          ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.4, canvas.height * 0.15);
-          ctx.lineTo(canvas.width * 0.35, canvas.height * 0.05);
-          ctx.lineTo(canvas.width * 0.45, canvas.height * 0.2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.moveTo(canvas.width * 0.6, canvas.height * 0.15);
-          ctx.lineTo(canvas.width * 0.65, canvas.height * 0.05);
-          ctx.lineTo(canvas.width * 0.55, canvas.height * 0.2);
-          ctx.fill();
-          // Olhos
-          ctx.fillStyle = "#0000FF";
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.45, canvas.height * 0.3, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(canvas.width * 0.55, canvas.height * 0.3, 8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Estrelas para noite
-        if (temNoite) {
-          ctx.fillStyle = "#FFFFFF";
-          for (let i = 0; i < 30; i++) {
-            const x = (Math.sin(i * 12.9898) * 43758.5453) % canvas.width;
-            const y = (Math.cos(i * 78.233) * 43758.5453) % (canvas.height * 0.5);
-            ctx.beginPath();
-            ctx.arc(x, y, 2, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-
-        // Texto descritivo no rodapé
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
-        ctx.fillStyle = "white";
-        ctx.font = "bold 16px Arial";
-        ctx.textAlign = "center";
-        const textLines = prompt.substring(0, 50).split(" ");
-        const line1 = textLines.slice(0, Math.ceil(textLines.length / 2)).join(" ");
-        const line2 = textLines.slice(Math.ceil(textLines.length / 2)).join(" ");
-        ctx.fillText(line1, canvas.width / 2, canvas.height - 35);
-        if (line2) ctx.fillText(line2, canvas.width / 2, canvas.height - 15);
-
-        const url = canvas.toDataURL("image/png");
-        resolve({ url, servico: "Gerador Local" });
-      });
-    };
-
-    // Fallback para Hugging Face quando Puter não responde
-    const gerarImagemHuggingFace = async (prompt) => {
-      const hfApiUrl = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev";
-      const hfToken = "";
-      
-      try {
-        console.log("Tentando Hugging Face como fallback...");
-        const response = await fetch(hfApiUrl, {
-          headers: { Authorization: `Bearer ${hfToken}` },
-          method: "POST",
-          body: JSON.stringify({ inputs: prompt }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Hugging Face retornou ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        console.log("Imagem gerada com Hugging Face:", url);
-        return { url, servico: "Hugging Face" };
-      } catch (err) {
-        console.error("Erro Hugging Face:", err);
-        console.log("Usando gerador local como último fallback...");
-        return await gerarImagemLocal(prompt);
-      }
-    };
-
-    btnGerarImagem.addEventListener("click", async () => {
-      if (bloquearSeArquivo()) return;
-
-      const texto = imagePrompt.value.trim();
-
-      if (!texto) {
-        setStatus("", "Digite um prompt para gerar a imagem.");
-        return;
-      }
-
-      document.body.classList.add("waiting");
-      setStatus("processing", "Gerando imagem... Aguarde.");
-      btnBaixarImagem.classList.add("hidden");
-      btnSalvarImagem.classList.add("hidden");
-      imagemResultado.innerHTML = "<p>Gerando imagem...</p>";
-
-      let servico = "Puter";
-      
-      try {
-        console.log("Iniciando geração de imagem com prompt:", texto);
-        
-        // Timeout de 15 segundos para Puter
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout: Puter não respondeu")), 15000)
-        );
-        
-        let resultado = await Promise.race([
-          puter.ai.txt2img(texto, true),
-          timeoutPromise
-        ]);
-
-        console.log("Puter respondeu:", resultado, "Tipo:", typeof resultado);
-        
-        document.body.classList.remove("waiting");
-        setStatus("ready", "Imagem gerada com sucesso! (via Puter)");
-
-        imagemResultado.innerHTML = "";
-        const img = resultado instanceof HTMLImageElement ? resultado.cloneNode(true) : new Image();
-
-        const origem = resultado && typeof resultado === "object"
-          ? (resultado.src || resultado.url || resultado.image || resultado.href || resultado.link)
-          : resultado;
-
-        if (origem) {
-          img.src = origem;
-        }
-
-        if (resultado && typeof resultado === "object" && resultado.alt) {
-          img.alt = resultado.alt;
-        } else {
-          img.alt = texto;
-        }
-
-        img.className = "generated-image";
-        imagemResultado.appendChild(img);
-        imagemGeradaUrl = img.src;
-
-        if (imagemGeradaUrl) {
-          btnBaixarImagem.classList.remove("hidden");
-          btnSalvarImagem.classList.remove("hidden");
-        }
-      } catch (err) {
-        console.warn("Puter falhou, tentando Hugging Face...", err);
-        
-        try {
-          const resultado = await gerarImagemHuggingFace(texto);
-          servico = resultado.servico;
-          
-          document.body.classList.remove("waiting");
-          setStatus("ready", `Imagem gerada com sucesso! (via ${servico})`);
-
-          imagemResultado.innerHTML = "";
-          const img = new Image();
-          img.src = resultado.url;
-          img.alt = texto;
-          img.className = "generated-image";
-          imagemResultado.appendChild(img);
-          imagemGeradaUrl = resultado.url;
-
-          btnBaixarImagem.classList.remove("hidden");
-          btnSalvarImagem.classList.remove("hidden");
-        } catch (fallbackErr) {
-          document.body.classList.remove("waiting");
-          setStatus("", "Não foi possível gerar a imagem. Tente novamente.");
-          imagemResultado.innerHTML = `<p>❌ Erro ao gerar imagem:<br>${String(fallbackErr).substring(0, 100)}</p>`;
-          console.error("Erro ao gerar imagem (ambos os serviços falharam):", fallbackErr);
-        }
-      }
-    });
-
-    const baixarImagemAtual = () => {
-      if (!imagemGeradaUrl) {
-        setStatus("", "Ainda não existe imagem para baixar.");
-        return;
-      }
-
-      const link = document.createElement("a");
-      link.href = imagemGeradaUrl;
-      link.download = "imagem-gerada-puter.png";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setStatus("ready", "Imagem baixada com sucesso!");
-    };
-
-    btnSalvarImagem.addEventListener("click", () => {
-      baixarImagemAtual();
-    });
-
-    btnBaixarImagem.addEventListener("click", () => {
-      baixarImagemAtual();
-    });
-  </script>
 </body>
 </html>
