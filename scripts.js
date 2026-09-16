@@ -148,10 +148,62 @@ btnEnviar?.addEventListener(
             resultado.innerHTML =
                 "Processando...";
 
-            const resposta =
-                await puter.ai.chat(
-                    pergunta
-                );
+            const instrucoesMatematica = `
+Quando houver matemática:
+
+- Escreva usando símbolos matemáticos Unicode.
+- Exemplos corretos:
+  2x² − 2x + 1 = 0
+  x³ + 2x² − x = 0
+  √25 = 5
+  Δ = b² − 4ac
+
+- Não escreva:
+  2x^2-2x+1=0
+  x^3+2x^2-x=0
+  sqrt(25)=5
+  Delta=b^2-4ac
+
+Quando houver equações do 2º grau, apresente SEMPRE:
+
+Forma geral:
+ax² + bx + c = 0
+
+Discriminante:
+Δ = b² − 4ac
+
+Fórmula de Bhaskara:
+
+$$
+x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}
+$$
+
+Exemplo resolvido:
+
+2x² − 5x + 2 = 0
+
+Δ = (-5)² − 4·2·2
+
+Δ = 25 − 16
+
+Δ = 9
+
+$$
+x = \\frac{5 \\pm 3}{4}
+$$
+
+Regras obrigatórias:
+
+- Sempre que houver fórmulas use MathJax/LaTeX.
+- Não converter fórmulas para texto simples.
+- Não escrever x^2. Escreva x².
+- Não escrever Delta. Escreva Δ.
+- Não escrever sqrt. Escreva √.
+`;
+
+const resposta = await puter.ai.chat(
+    `${instrucoesMatematica}\n\nPergunta do usuário:\n${pergunta}`
+);
 
             const texto =
                 resposta?.message?.content ||
