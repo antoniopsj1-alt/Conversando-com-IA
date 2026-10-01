@@ -75,7 +75,18 @@
                     🧹 Limpar
                 </button>
 
+                <button id="btnAnexar" type="button">
+                    📎 Anexar arquivo ou foto
+                </button>
+
             </div>
+
+            <input type="file"
+                   id="fileAnexo"
+                   accept=".pdf,.doc,.docx,.txt,image/*"
+                   style="display:none">
+
+            <div id="anexoPreview" class="anexo-preview" style="display:none"></div>
 
         </div>
 
@@ -122,6 +133,32 @@
                 <button id="btnCopiarResposta" type="button">
    		 📋 Copiar Ctrl+C
 		</button>
+
+            </div>
+
+        </div>
+
+        <div class="historico-box">
+
+            <div class="historico-head">
+
+                <h3>Histórico da conversa</h3>
+
+                <span class="historico-sub">A IA usa esse histórico para lembrar o que foi perguntado antes</span>
+
+                <button id="btnCopiarHistorico" type="button">
+                📋 Copiar Histórico Ctrl+C
+                </button>
+
+                <button id="btnLimparHistorico" type="button">
+                🗑 Limpar histórico
+                </button>
+
+            </div>
+
+            <div id="historicoLista" class="historico-lista">
+
+                <p class="historico-vazio">Nenhuma pergunta ainda.</p>
 
             </div>
 

@@ -1,9 +1,297 @@
 const btnEnviar = document.getElementById("btnEnviar");
 const btnLimpar = document.getElementById("btnLimpar");
-
+const btnLimparHistorico = document.getElementById("btnLimparHistorico");
+const btnAnexar = document.getElementById("btnAnexar");
+const btnCopiarHistorico = document.getElementById("btnCopiarHistorico");
 const promptInput = document.getElementById("prompt");
 const resultado = document.getElementById("resultado");
 const status = document.querySelector(".status-text");
+const historicoLista = document.getElementById("historicoLista");
+const fileAnexo = document.getElementById("fileAnexo");
+const anexoPreview = document.getElementById("anexoPreview");
+
+/* =========================
+   ANEXO (ARQUIVO OU FOTO)
+   A IA do Puter só "enxerga" o conteúdo de um arquivo se ele for
+   enviado pelo sistema de arquivos do Puter (puter.fs). Por isso,
+   ao anexar, o arquivo é enviado para lá, usado na pergunta e
+   apagado logo em seguida.
+========================= */
+
+const TAMANHO_MAX_ANEXO = 20 * 1024 * 1024; // 20MB
+
+let arquivoAnexado = null; // objeto File escolhido pelo usuário
+
+function formatarTamanho(bytes) {
+
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
+
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function iconeParaArquivo(nome) {
+
+    const ext = (nome.split(".").pop() || "").toLowerCase();
+
+    if (["pdf"].includes(ext)) return "📕";
+    if (["doc", "docx"].includes(ext)) return "📄";
+    if (["txt"].includes(ext)) return "📃";
+
+    return "📎";
+}
+
+function renderizarAnexoPreview() {
+
+    if (!arquivoAnexado) {
+
+        anexoPreview.style.display = "none";
+        anexoPreview.innerHTML = "";
+
+        return;
+    }
+
+    const ehImagem = arquivoAnexado.type.startsWith("image/");
+
+    const miniatura = ehImagem
+        ? `<img src="${URL.createObjectURL(arquivoAnexado)}" alt="">`
+        : `<span class="anexo-icone">${iconeParaArquivo(arquivoAnexado.name)}</span>`;
+
+    anexoPreview.style.display = "flex";
+
+    anexoPreview.innerHTML = `
+        ${miniatura}
+        <div class="anexo-info">
+            <div class="anexo-nome">${escaparHtml(arquivoAnexado.name)}</div>
+            <div class="anexo-tam">${formatarTamanho(arquivoAnexado.size)}</div>
+        </div>
+        <button type="button" class="anexo-remover" id="btnRemoverAnexo">✕ Remover</button>
+    `;
+
+    document
+        .getElementById("btnRemoverAnexo")
+        ?.addEventListener("click", () => {
+
+            arquivoAnexado = null;
+            fileAnexo.value = "";
+
+            renderizarAnexoPreview();
+        });
+}
+
+btnAnexar?.addEventListener(
+    "click",
+    () => fileAnexo.click()
+);
+
+fileAnexo?.addEventListener(
+    "change",
+    () => {
+
+        const arquivo = fileAnexo.files?.[0];
+
+        if (!arquivo) return;
+
+        if (arquivo.size > TAMANHO_MAX_ANEXO) {
+
+            atualizarStatus(
+                "Arquivo muito grande (máximo 20MB)."
+            );
+
+            fileAnexo.value = "";
+
+            return;
+        }
+
+        arquivoAnexado = arquivo;
+
+        renderizarAnexoPreview();
+
+        atualizarStatus(
+            "Arquivo pronto para enviar junto com a pergunta."
+        );
+    }
+);
+
+/* =========================
+   MEMÓRIA DA CONVERSA
+   (o Puter não guarda histórico sozinho: é preciso reenviar
+   as mensagens anteriores a cada nova pergunta)
+========================= */
+
+// Quantidade máxima de pares pergunta/resposta reenviados à IA a cada
+// pergunta nova (evita que a conversa cresça demais e fique lenta/cara).
+const MAX_PARES_MEMORIA = 10;
+
+// Histórico enviado à IA: [{role:"user"|"assistant", content:"..."}]
+let historicoIA = [];
+
+// Histórico mostrado na tela (guarda o texto completo da resposta para
+// poder reabrir qualquer item depois, mesmo os mais antigos).
+let historicoVisual = [];
+
+function limitarHistoricoIA() {
+
+    const maxMensagens = MAX_PARES_MEMORIA * 2;
+
+    if (historicoIA.length > maxMensagens) {
+
+        historicoIA =
+            historicoIA.slice(
+                historicoIA.length - maxMensagens
+            );
+    }
+}
+
+function renderizarHistorico() {
+
+    if (!historicoVisual.length) {
+
+        historicoLista.innerHTML =
+            `<p class="historico-vazio">Nenhuma pergunta ainda.</p>`;
+
+        return;
+    }
+
+    historicoLista.innerHTML =
+        historicoVisual
+            .slice()
+            .reverse()
+            .map((item, indexReverso) => {
+
+                const indexReal =
+                    historicoVisual.length - 1 - indexReverso;
+
+                return `
+                    <div class="historico-item" data-index="${indexReal}">
+                        <div class="hi-pergunta">🧑 ${item.anexoNome ? `<span class="hi-anexo">📎</span>` : ""}${escaparHtml(item.pergunta)}</div>
+                        <div class="hi-resposta">🤖 ${escaparHtml(item.respostaPreview)}</div>
+                        <span class="hi-hora">${item.hora}${item.anexoNome ? ` · anexo: ${escaparHtml(item.anexoNome)}` : ""}</span>
+                    </div>
+                `;
+            })
+            .join("");
+
+    document
+        .querySelectorAll(".historico-item")
+        .forEach((el) => {
+
+            el.addEventListener("click", async () => {
+
+                const item =
+                    historicoVisual[
+                        Number(el.dataset.index)
+                    ];
+
+                if (!item) return;
+
+                promptInput.value = item.pergunta;
+
+                resultado.innerHTML =
+                    formatarResposta(item.respostaCompleta);
+
+                await renderizarFormulas(resultado);
+
+                atualizarStatus(
+                    "Mostrando uma resposta do histórico."
+                );
+            });
+        });
+}
+
+function adicionarAoHistorico(pergunta, respostaCompleta, anexoNome) {
+
+    // Memória enviada à IA: guardamos só o TEXTO da pergunta (com uma nota
+    // dizendo que havia um anexo) e a resposta. O arquivo em si não fica
+    // disponível nas perguntas seguintes — só na pergunta em que foi anexado.
+    const textoParaMemoria = anexoNome
+        ? `[Arquivo anexado: ${anexoNome}] ${pergunta}`
+        : pergunta;
+
+    historicoIA.push({ role: "user", content: textoParaMemoria });
+    historicoIA.push({ role: "assistant", content: respostaCompleta });
+    limitarHistoricoIA();
+
+    // Memória mostrada na tela
+    const preview =
+        String(respostaCompleta || "")
+            .replace(/[#*_`]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .slice(0, 160);
+
+    const agora = new Date();
+
+    historicoVisual.push({
+        pergunta,
+        respostaCompleta,
+        anexoNome: anexoNome || null,
+        respostaPreview: preview || "(sem texto)",
+        hora: agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+    });
+
+    renderizarHistorico();
+}
+
+btnLimparHistorico?.addEventListener(
+    "click",
+    () => {
+
+        historicoIA = [];
+        historicoVisual = [];
+
+        renderizarHistorico();
+
+        atualizarStatus(
+            "Histórico apagado. A IA não vai mais lembrar das perguntas anteriores."
+        );
+    }
+);
+
+/* =========================
+   COPIAR HISTÓRICO
+========================= */
+btnCopiarHistorico?.addEventListener(
+    "click",
+    async () => {
+        if (!historicoVisual.length) {
+            atualizarStatus(
+                "Não há histórico para copiar."
+            );
+            return;
+        }
+
+        const textoHistorico = historicoVisual
+            .map((item, index) => {
+                return `CONVERSA ${index + 1}
+
+PERGUNTA:
+${item.pergunta}
+
+RESPOSTA:
+${item.respostaCompleta}
+
+----------------------------------------`;
+            })
+            .join("\n\n");
+
+        try {
+            await navigator.clipboard.writeText(
+                textoHistorico
+            );
+
+            atualizarStatus(
+                "Histórico copiado para a área de transferência."
+            );
+        } catch (erro) {
+            console.error(erro);
+
+            atualizarStatus(
+                "Erro ao copiar histórico."
+            );
+        }
+    }
+);
 
 /* =========================
    RECONHECIMENTO DE VOZ
@@ -244,42 +532,7 @@ async function renderizarFormulas(elemento) {
    ENVIAR PARA IA
 ========================= */
 
-btnEnviar?.addEventListener(
-    "click",
-    async () => {
-
-        const pergunta =
-            promptInput.value.trim();
-
-        if (!pergunta) {
-
-            atualizarStatus(
-                "Digite uma pergunta."
-            );
-
-            return;
-        }
-
-        try {
-
-            if (
-                typeof puter ===
-                "undefined"
-            ) {
-
-                throw new Error(
-                    "Puter não carregado."
-                );
-            }
-
-            atualizarStatus(
-                "A IA está pensando..."
-            );
-
-            resultado.innerHTML =
-                "Processando...";
-
-            const instrucoesFormatacao = `
+const instrucoesFormatacao = `
 Responda de forma bem estruturada, em Markdown, usando títulos (##), subtítulos, parágrafos curtos e listas quando fizer sentido para organizar a explicação (não force estrutura em respostas simples, como uma saudação).
 
 Quando houver fórmulas ou equações de matemática, física ou química:
@@ -323,11 +576,95 @@ Regras obrigatórias:
 - Não escrever x^2. Escreva x².
 - Não escrever Delta. Escreva Δ.
 - Não escrever sqrt. Escreva √.
+
+Você também tem acesso ao histórico das perguntas e respostas anteriores desta conversa.
+Use esse histórico quando o usuário perguntar algo que depende do que já foi dito antes
+(ex: "e sobre isso?", "continue", "o que eu perguntei antes?").
 `;
 
-const resposta = await puter.ai.chat(
-    `${instrucoesFormatacao}\n\nPergunta do usuário:\n${pergunta}`
-);
+btnEnviar?.addEventListener(
+    "click",
+    async () => {
+
+        const pergunta =
+            promptInput.value.trim();
+
+        if (!pergunta && !arquivoAnexado) {
+
+            atualizarStatus(
+                "Digite uma pergunta ou anexe um arquivo."
+            );
+
+            return;
+        }
+
+        const anexoDaVez = arquivoAnexado;
+        let caminhoTemporario = null;
+
+        try {
+
+            if (
+                typeof puter ===
+                "undefined"
+            ) {
+
+                throw new Error(
+                    "Puter não carregado."
+                );
+            }
+
+            resultado.innerHTML =
+                "Processando...";
+
+            // Pergunta usada caso o usuário só anexe o arquivo sem digitar nada.
+            const perguntaEfetiva =
+                pergunta ||
+                (anexoDaVez
+                    ? (anexoDaVez.type.startsWith("image/")
+                        ? "Descreva o que você vê nesta foto."
+                        : "Resuma e explique o conteúdo deste arquivo.")
+                    : "");
+
+            // Monta o conteúdo da mensagem do usuário: texto simples, ou
+            // (quando há anexo) texto + arquivo, enviado via sistema de
+            // arquivos do Puter, que é como a IA consegue "ler" o anexo.
+            let conteudoUsuario = perguntaEfetiva;
+
+            if (anexoDaVez) {
+
+                atualizarStatus(
+                    "Enviando arquivo..."
+                );
+
+                const nomeTemp =
+                    `anexo_${Date.now()}_${anexoDaVez.name}`;
+
+                const arquivoSalvo =
+                    await puter.fs.write(nomeTemp, anexoDaVez);
+
+                caminhoTemporario = arquivoSalvo.path;
+
+                conteudoUsuario = [
+                    { type: "file", puter_path: caminhoTemporario },
+                    { type: "text", text: perguntaEfetiva },
+                ];
+            }
+
+            atualizarStatus(
+                "A IA está pensando..."
+            );
+
+            // Monta as mensagens enviadas à IA: instruções de formatação
+            // (sempre no topo) + todo o histórico já conversado + a pergunta nova.
+            // É assim que a memória funciona: o Puter não guarda nada sozinho,
+            // então reenviamos a conversa inteira a cada pergunta.
+            const mensagens = [
+                { role: "system", content: instrucoesFormatacao },
+                ...historicoIA,
+                { role: "user", content: conteudoUsuario },
+            ];
+
+            const resposta = await puter.ai.chat(mensagens);
 
             const texto =
                 resposta?.message?.content ||
@@ -338,6 +675,17 @@ const resposta = await puter.ai.chat(
     		formatarResposta(texto);
 
             await renderizarFormulas(resultado);
+
+            adicionarAoHistorico(
+                perguntaEfetiva,
+                texto,
+                anexoDaVez ? anexoDaVez.name : null
+            );
+
+            // Limpa o anexo da tela: ele só vale para esta pergunta.
+            arquivoAnexado = null;
+            fileAnexo.value = "";
+            renderizarAnexoPreview();
 
             atualizarStatus(
                 "Resposta recebida."
@@ -353,6 +701,25 @@ const resposta = await puter.ai.chat(
 
             resultado.innerHTML =
                 `Erro: ${erro.message || erro}`;
+
+        } finally {
+
+            // Remove o arquivo temporário do armazenamento do Puter,
+            // tenha a pergunta dado certo ou não.
+            if (caminhoTemporario) {
+
+                try {
+
+                    await puter.fs.delete(caminhoTemporario);
+
+                } catch (erroLimpeza) {
+
+                    console.error(
+                        "Não foi possível apagar o arquivo temporário:",
+                        erroLimpeza
+                    );
+                }
+            }
         }
 
     }

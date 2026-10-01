@@ -350,3 +350,287 @@ button:active{
     border-top:1px solid #e2e8f5;
     margin:18px 0;
 }
+
+/* =========================
+   ANEXO (ARQUIVO/FOTO)
+========================= */
+
+.anexo-preview{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-top:12px;
+
+    background:#ffffff;
+
+    border:1px solid #dce8ff;
+
+    border-radius:14px;
+
+    padding:10px 14px;
+}
+
+.anexo-preview img{
+
+    width:40px;
+
+    height:40px;
+
+    object-fit:cover;
+
+    border-radius:8px;
+
+    flex-shrink:0;
+}
+
+.anexo-preview .anexo-icone{
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:8px;
+
+    background:#eef4ff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:18px;
+
+    flex-shrink:0;
+}
+
+.anexo-preview .anexo-info{
+
+    flex:1;
+
+    min-width:0;
+}
+
+.anexo-preview .anexo-nome{
+
+    font-weight:700;
+
+    font-size:13.5px;
+
+    color:var(--dark);
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+}
+
+.anexo-preview .anexo-tam{
+
+    font-size:11.5px;
+
+    color:#8a97ad;
+}
+
+.anexo-preview .anexo-remover{
+
+    background:#ffecec;
+
+    color:#c0392b;
+
+    border:none;
+
+    border-radius:10px;
+
+    padding:6px 10px;
+
+    font-size:12px;
+
+    flex-shrink:0;
+}
+
+.anexo-preview .anexo-remover:hover{
+
+    transform:none;
+
+    opacity:1;
+
+    background:#ffd9d9;
+}
+
+.hi-anexo{
+
+    display:inline-block;
+
+    margin-right:6px;
+}
+
+/* =========================
+   HISTÓRICO DA CONVERSA
+========================= */
+
+.historico-box{
+
+    margin-top:28px;
+
+    background:#f6f9ff;
+
+    border:1px solid #dce8ff;
+
+    border-radius:18px;
+
+    padding:18px;
+}
+
+.historico-head{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    align-items:center;
+
+    gap:10px 14px;
+
+    margin-bottom:14px;
+}
+
+.historico-head h3{
+
+    color:var(--primary-strong);
+
+    font-size:17px;
+}
+
+.historico-sub{
+
+    flex:1 1 auto;
+
+    font-size:12.5px;
+
+    color:#5c6b85;
+}
+
+.historico-head button{
+
+    background:#ffffff;
+
+    color:var(--primary-strong);
+
+    border:1px solid #dce8ff;
+
+    padding:8px 14px;
+
+    font-size:13px;
+}
+
+.historico-head button:hover{
+
+    transform:none;
+
+    opacity:1;
+
+    background:#eef4ff;
+}
+
+.historico-lista{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    max-height:360px;
+
+    overflow-y:auto;
+
+    padding-right:4px;
+}
+
+.historico-vazio{
+
+    color:#8a97ad;
+
+    font-size:14px;
+
+    padding:6px 2px;
+}
+
+.historico-item{
+
+    background:#ffffff;
+
+    border:1px solid #e2e8f5;
+
+    border-radius:14px;
+
+    padding:12px 16px;
+
+    cursor:pointer;
+
+    transition:.15s;
+}
+
+.historico-item:hover{
+
+    border-color:var(--secondary);
+
+    box-shadow:0 4px 12px rgba(13,91,215,.12);
+}
+
+.historico-item .hi-pergunta{
+
+    font-weight:700;
+
+    color:var(--dark);
+
+    font-size:14.5px;
+
+    margin-bottom:4px;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    display:-webkit-box;
+
+    -webkit-line-clamp:2;
+
+    -webkit-box-orient:vertical;
+}
+
+.historico-item .hi-resposta{
+
+    color:#4b5876;
+
+    font-size:13.5px;
+
+    line-height:1.5;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    display:-webkit-box;
+
+    -webkit-line-clamp:2;
+
+    -webkit-box-orient:vertical;
+}
+
+.historico-item .hi-hora{
+
+    display:block;
+
+    margin-top:6px;
+
+    font-size:11px;
+
+    color:#8a97ad;
+}
